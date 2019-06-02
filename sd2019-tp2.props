@@ -8,16 +8,16 @@ profiles-rest-service-mainclass=microgram.impl.rest.profiles.ProfilesRestServer
 profiles-rest-service-port=18888
 
 shared-process-backend-services-bool=true
-shared-process-backend-services-mainclass=
+shared-process-backend-services-mainclass=microgram.impl.rest.MicrogramRestServer
 shared-process-backend-services-port=18888
 
-uses-kafka-bool=true
-uses-external-mongo-bool=false
+uses-kafka-bool=false
+uses-external-mongo-bool=true
 
-microgram-keystore=
-microgram-keystore-password=
-microgram-truststore=
-microgram-truststore-password=
+microgram-keystore=/home/sd/MicrogramRestServer.ks
+microgram-keystore-password=5064750503
+microgram-truststore=/home/sd/ClientMicrogramRestServertrustedstore.ks
+microgram-truststore-password=5064750503
 
 posts-keystore=
 posts-keystore-password=
@@ -31,8 +31,8 @@ profiles-truststore-password=
 
 mediastorage-truststore=
 mediastorage-truststore-password=
-mediastorage-keystore=
-mediastorage-keystore-password=
+mediastorage-keystore=/home/sd/mediaserver.ks
+mediastorage-keystore-password=5064750503
 
-tester-truststore=
-tester-truststore-password=
+tester-truststore=/home/sd/clientmediaservertrustore.ks
+tester-truststore-password=5064750503
