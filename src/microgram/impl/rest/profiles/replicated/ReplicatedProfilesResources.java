@@ -5,16 +5,18 @@ import java.util.List;
 import microgram.api.Profile;
 import microgram.api.java.Profiles;
 import microgram.api.rest.RestProfiles;
-import microgram.impl.java.JavaProfiles;
+import microgram.impl.mongo.MongoProfiles;
 import microgram.impl.rest.RestResource;
+import microgram.impl.rest.replication.MicrogramTopic;
+import microgram.impl.rest.replication.TotalOrderExecutor;
 
 public class ReplicatedProfilesResources extends RestResource implements RestProfiles {
-	final Profiles localDB;
+	final MongoProfiles localDB;
 	final ProfilesReplicator replicator;
 	
 	public ReplicatedProfilesResources() {
-		this.localDB = new JavaProfiles() ;
-		this.replicator = null; //new _TODO_ProfilesReplicator(localDB, new TotalOrderExecutor(MicrogramTopic.MicrogramEvents));
+		this.localDB = new MongoProfiles() ;
+		this.replicator = new ProfilesReplicator(localDB, new TotalOrderExecutor(MicrogramTopic.MicrogramEvents));
 	}
 
 	@Override
