@@ -10,7 +10,7 @@ import microgram.impl.rest.RestResource;
 
 public class ReplicatedProfilesResources extends RestResource implements RestProfiles {
 	final Profiles localDB;
-	final _TODO_ProfilesReplicator replicator;
+	final ProfilesReplicator replicator;
 	
 	public ReplicatedProfilesResources() {
 		this.localDB = new JavaProfiles() ;

@@ -11,14 +11,14 @@ import microgram.impl.rest.replication.MicrogramOperation;
 import microgram.impl.rest.replication.MicrogramOperationExecutor;
 import microgram.impl.rest.replication.OrderedExecutor;
 
-public abstract class _TODO_ProfilesReplicator implements MicrogramOperationExecutor, Profiles {
+public abstract class ProfilesReplicator implements MicrogramOperationExecutor, Profiles {
 
 	private static final int FOLLOWER = 0, FOLLOWEE = 1;
 	
-	final Profiles localReplicaDB;
+	final MongoProfiles localReplicaDB;
 	final OrderedExecutor executor;
 	
-	_TODO_ProfilesReplicator( Profiles localDB, OrderedExecutor executor) {
+	ProfilesReplicator( Profiles localDB, OrderedExecutor executor) {
 		this.localReplicaDB = localDB;
 		this.executor = executor.init(this);
 	}

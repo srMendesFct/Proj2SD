@@ -12,7 +12,7 @@ import microgram.impl.rest.replication.TotalOrderExecutor;
 
 public class ReplicatedPostsResources extends RestResource implements RestPosts {
 	final Posts localDB;
-	final _TODO_PostsReplicator replicator;
+	final PostsReplicator replicator;
 	
 	public ReplicatedPostsResources() {
 		this.localDB = new JavaPosts();

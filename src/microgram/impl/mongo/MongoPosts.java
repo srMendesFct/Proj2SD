@@ -3,7 +3,6 @@ package microgram.impl.mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import discovery.Discovery;
-import javafx.geometry.Pos;
 import microgram.api.Post;
 import microgram.api.Profile;
 import microgram.api.java.Posts;
