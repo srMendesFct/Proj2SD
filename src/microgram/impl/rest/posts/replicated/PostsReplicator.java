@@ -1,5 +1,4 @@
 package microgram.impl.rest.posts.replicated;
-import javafx.geometry.Pos;
 import microgram.api.Post;
 import microgram.api.Profile;
 import microgram.api.java.Posts;

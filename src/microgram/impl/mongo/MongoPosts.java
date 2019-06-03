@@ -31,8 +31,8 @@ public class MongoPosts implements Posts {
     final Datastore userposts;
     static MongoPosts pMongo;
     public MongoPosts() {
-        MongoClientURI uri = new MongoClientURI("mongodb://mongo1,mongo2,mongo3/?w=majority&readConcernLevel=majority&readPreference=secondary");
-        MongoClient mongo = new MongoClient(uri);
+       // MongoClientURI uri = new MongoClientURI("mongodb://mongo1,mongo2,mongo3/?w=majority&readConcernLevel=majority&readPreference=secondary");
+        MongoClient mongo = new MongoClient("127.0.0.1");
         final Morphia morphia = new Morphia();
         morphia.mapPackage("Posts storage");
         postsdatastore = morphia.createDatastore(mongo, "post");
