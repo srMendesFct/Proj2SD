@@ -28,26 +28,24 @@ public class DropboxMedia implements Media {
     private static final String accessTokenStr = "PImj5hw9xNAAAAAAAAAEELeYa0uTOhRZFQkkQDWUlryTZu7Dw-D-3Fr_nqBMC1m0";
 
    static OAuth20Service service;
-   static OAuth2AccessToken accessToken;
+
 
     public DropboxMedia() {
         service = new ServiceBuilder(apiKey).
                 apiSecret(apiSecret).
                 build(DropboxApi20.INSTANCE);
 
-        accessToken = new OAuth2AccessToken(accessTokenStr);
-
     }
 
     @Override
     public Result<String> upload(byte[] bytes) throws InterruptedException, ExecutionException, IOException {
-        String id = Hash.digest(bytes).toString();
+        String id = Hash.digest(bytes).toString();              //ou /upload
         OAuthRequest upload = new OAuthRequest(Verb.POST, "https://content.dropboxapi.com/2/files/upload");
         upload.addHeader("path", "/" + id);
         upload.addHeader("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
 
         upload.setPayload(bytes);
-        service.signRequest(accessToken, upload);
+        service.signRequest( new OAuth2AccessToken(accessTokenStr), upload);
         Response r = service.execute(upload);
 
 
@@ -64,7 +62,7 @@ public class DropboxMedia implements Media {
     public Result<byte[]> download(String id) throws InterruptedException, ExecutionException, IOException {
         OAuthRequest getFile = new OAuthRequest(Verb.GET, "https://api.dropboxapi.com/2/" + id + "/get");
         getFile.addHeader("path", "/" + id);
-        service.signRequest(accessToken, getFile);
+        service.signRequest( new OAuth2AccessToken(accessTokenStr), getFile);
         Response r = service.execute(getFile);
 
         if (r.getCode() == 404) {
@@ -82,7 +80,7 @@ public class DropboxMedia implements Media {
         OAuthRequest delFile = new OAuthRequest(Verb.DELETE, "https://api.dropboxapi.com/2/files/delete_v2");
         delFile.addHeader("path", "/" + id);
 
-        service.signRequest(accessToken, delFile);
+        service.signRequest( new OAuth2AccessToken(accessTokenStr), delFile);
         Response r = service.execute(delFile);
 
         if (r.getCode() == 404) {
