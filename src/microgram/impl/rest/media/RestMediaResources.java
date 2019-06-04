@@ -13,7 +13,7 @@ public class RestMediaResources extends RestResource implements RestMedia {
 
 	public RestMediaResources(String baseUri) throws Exception {
 		this.baseUri = baseUri;
-		this.impl = DropboxMedia.createClientWithAccessToken();
+		this.impl = new DropboxMedia();
 	}
 
 	@Override

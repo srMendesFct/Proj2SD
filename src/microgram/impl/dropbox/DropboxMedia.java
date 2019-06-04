@@ -35,28 +35,14 @@ public class DropboxMedia implements Media {
     protected OAuth2AccessToken accessToken;
 
 
-    public static DropboxMedia createClientWithAccessToken() throws Exception {
-        try {
-            OAuth20Service service = new ServiceBuilder(apiKey).apiSecret(apiSecret).build(DropboxApi20.INSTANCE);
-            OAuth2AccessToken accessToken = new OAuth2AccessToken(accessTokenStr);
 
-            System.err.println(accessToken.getAccessToken());
-            System.err.println(accessToken.toString());
-            return new DropboxMedia(service, accessToken);
-
-        } catch (Exception x) {
-            x.printStackTrace();
-            throw new Exception(x);
-        }
-    }
-
-    protected DropboxMedia(OAuth20Service service, OAuth2AccessToken accessToken) {
-        this.service = service;
-        this.accessToken = accessToken;
+    public DropboxMedia() {
+        OAuth20Service service = new ServiceBuilder(apiKey).apiSecret(apiSecret).build(DropboxApi20.INSTANCE);
+        OAuth2AccessToken accessToken = new OAuth2AccessToken(accessTokenStr);
     }
 
 
-    @Override
+        @Override
     public Result<String> upload(byte[] bytes) throws InterruptedException, ExecutionException, IOException {
         String id = Hash.digest(bytes).toString();
         OAuthRequest upload = new OAuthRequest(Verb.POST, CREATE_FILE_V2_URL);
