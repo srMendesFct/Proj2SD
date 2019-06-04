@@ -17,13 +17,11 @@ import javax.net.ssl.SSLContext;
 public class MediaRestServer {
     public static final int PORT = 12222;
     public static final String SERVICE = "Microgram-MediaStorage";
-    public static String SERVER_BASE_URI = "http://%s:%s/rest";
+    public static String SERVER_BASE_URI = "https://%s:%s/rest";
 
 
     public static void main(String[] args) throws Exception {
         System.setProperty("java.net.preferIPv4Stack", "true");
-        System.setProperty("Djavax.net.ssl.keyStore=<mediaserver.ks>", "true");
-        System.setProperty("Djavax.net.ssl.keyStorePassword=<5050350647>", "true");
 
         Log.setLevel(Level.FINER);
 
@@ -39,8 +37,7 @@ public class MediaRestServer {
 
 //		config.register(new GenericExceptionMapper());
 //		config.register(new PrematchingRequestFilter());
-        SSLContext sc = SSLContext.getInstance("TLS");
-        SSLContext.setDefault(sc);
+
         JdkHttpServerFactory.createHttpServer(URI.create(serverURI.replace(ip, "0.0.0.0")), config, SSLContext.getDefault());
 
         Log.fine(String.format("%s Rest Server ready @ %s\n", SERVICE, serverURI));

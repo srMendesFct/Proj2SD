@@ -35,15 +35,34 @@ public class DropboxMedia implements Media {
     protected OAuth2AccessToken accessToken;
 
 
-
     public DropboxMedia() {
-        OAuth20Service service = new ServiceBuilder(apiKey).apiSecret(apiSecret).build(DropboxApi20.INSTANCE);
-        OAuth2AccessToken accessToken = new OAuth2AccessToken(accessTokenStr);
+    }
+
+    public DropboxMedia(OAuth20Service service, OAuth2AccessToken accessToken) {
+        service = new ServiceBuilder(apiKey).apiSecret(apiSecret).build(DropboxApi20.INSTANCE);
+        accessToken = new OAuth2AccessToken(accessTokenStr);
     }
 
 
-        @Override
+    public static DropboxMedia createClientWithAccessToken() throws Exception {
+        try {
+            OAuth20Service service = new ServiceBuilder(apiKey).apiSecret(apiSecret).build(DropboxApi20.INSTANCE);
+            OAuth2AccessToken accessToken = new OAuth2AccessToken(accessTokenStr);
+
+            System.err.println(accessToken.getAccessToken());
+            System.err.println(accessToken.toString());
+            return new DropboxMedia(service, accessToken);
+
+        } catch (Exception x) {
+            x.printStackTrace();
+            throw new Exception(x);
+        }
+    }
+
+
+    @Override
     public Result<String> upload(byte[] bytes) throws InterruptedException, ExecutionException, IOException {
+
         String id = Hash.digest(bytes).toString();
         OAuthRequest upload = new OAuthRequest(Verb.POST, CREATE_FILE_V2_URL);
         upload.addHeader("Content-Type", OCTETSTREAM_CONTENT_TYPE);
@@ -57,7 +76,7 @@ public class DropboxMedia implements Media {
         } else if (r.getCode() == 200) {
             return Result.ok(id);
         } else {
-            return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+            return Result.error(Result.ErrorCode.NOT_IMPLEMENTED);
         }
     }
 
