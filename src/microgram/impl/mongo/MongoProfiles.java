@@ -62,6 +62,8 @@ public class MongoProfiles implements Profiles {
         List<Following> newFollowing = following.createQuery(Following.class).field("userId").equal(profile.getUserId()).asList();
         List<Followers> newFollowers = followers.createQuery(Followers.class).field("userId").equal(profile.getUserId()).asList();
 
+        return ok();
+       /*
         if (!profiles.isEmpty()) {
             throw new WebApplicationException(Response.Status.CONFLICT);
         } else {
@@ -70,6 +72,8 @@ public class MongoProfiles implements Profiles {
             followers.save(newFollowers);
             return ok();
         }
+        
+        */
     }
 
     @Override
