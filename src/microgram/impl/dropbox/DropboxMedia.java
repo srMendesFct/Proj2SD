@@ -32,8 +32,8 @@ public class DropboxMedia implements Media {
 
     private static final String DROPBOX_API_ARG = "Dropbox-API-Arg";
 
-    protected final OAuth20Service service;
-    protected final OAuth2AccessToken accessToken;
+    protected OAuth20Service service;
+    protected  OAuth2AccessToken accessToken;
 
 
     public DropboxMedia(OAuth20Service service, OAuth2AccessToken accessToken) {
@@ -57,6 +57,9 @@ public class DropboxMedia implements Media {
         }
     }
 
+    public DropboxMedia(){
+
+    }
 
     @Override
     public Result<String> upload(byte[] bytes) throws InterruptedException, ExecutionException, IOException {
