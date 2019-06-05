@@ -1,0 +1,27 @@
+keytool -genkey -alias server -keyalg RSA -validity 365 -keystore mediaserver.ks -storetype pkcs12
+
+keytool -exportcert -alias server -keystore mediaserver.ks -file mediaserver.cert
+
+keytool -genkey -alias client -keyalg RSA -validity 365 -keystore client.ks -storetype pkcs12
+
+keytool -exportcert -alias client -keystore client.ks -file client.cert
+
+cp base-truststore.ks client-truststore.ks
+
+echo "Use password: changeit"
+
+keytool -importcert -file mediaserver.cert -alias mediastore -keystore client-truststore.ks
+
+cp base-truststore.ks mediaclient-truststore.ks
+
+echo "Use password: changeit"
+
+keytool -importcert -file mediaserver.cert -alias mediastore -keystore mediaclient-truststore.ks
+
+echo "Use password: changeit"
+
+keytool -importcert -file client.cert -alias client -keystore client-truststore.ks
+
+echo "Use password: changeit"
+
+keytool -importcert -file client.cert -alias client -keystore mediaclient-truststore.ks

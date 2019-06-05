@@ -4,34 +4,7 @@
     <bookmark url="file://$PROJECT_DIR$/src/microgram/impl/rest/posts/replicated/PostsReplicator.java" line="49" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="07daef10-f0f2-40bf-ae76-aa4026438049" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/microgram/impl/mongo/PojoPost.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/microgram/impl/mongo/PojoPostsRelations.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/microgram/impl/mongo/ProfilesPojos/PojoProfRelations.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/microgram/impl/mongo/ProfilesPojos/PojoProfile.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sd2019-tp2.props" beforeDir="false" afterPath="$PROJECT_DIR$/sd2019-tp2.props" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/MicrogramRestServer.cert" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/TesterTrustdstore.ks" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/clientmediaservertrustore.ks" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/mediaserver.cert" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/mediaserver.ks" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/microgram/api/Profile.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/microgram/api/Profile.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/microgram/impl/dropbox/DropboxMedia.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/microgram/impl/dropbox/DropboxMedia.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/microgram/impl/dropbox/UploadArgs.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/microgram/impl/dropbox/UploadArgs.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/microgram/impl/mongo/Followers.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/microgram/impl/mongo/Following.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/microgram/impl/mongo/LikesPost.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/microgram/impl/mongo/MongoPosts.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/microgram/impl/mongo/MongoPosts.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/microgram/impl/mongo/MongoProfiles.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/microgram/impl/mongo/MongoProfiles.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/microgram/impl/mongo/UserPosts.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/microgram/impl/rest/MicrogramRestServer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/microgram/impl/rest/RestResource.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/microgram/impl/rest/media/RestMediaResources.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/microgram/impl/rest/media/RestMediaResources.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/microgram/impl/rest/posts/replicated/PostsReplicator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/microgram/impl/rest/posts/replicated/PostsReplicator.java" afterDir="false" />
-    </list>
+    <list default="true" id="07daef10-f0f2-40bf-ae76-aa4026438049" name="Default Changelist" comment="" />
     <ignored path="$PROJECT_DIR$/classes/" />
     <ignored path="$PROJECT_DIR$/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -447,12 +420,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1559503482585</updated>
-      <workItem from="1559503488322" duration="81183000" />
+      <workItem from="1559503488322" duration="81528000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="81183000" />
+    <option name="totallyTimeSpent" value="81528000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="93" y="-8" width="1835" height="1096" extended-state="6" />
