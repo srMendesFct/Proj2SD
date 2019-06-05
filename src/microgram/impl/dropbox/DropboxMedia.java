@@ -36,9 +36,6 @@ public class DropboxMedia implements Media {
     protected final OAuth2AccessToken accessToken;
 
 
-    public DropboxMedia() {
-    }
-
     public DropboxMedia(OAuth20Service service, OAuth2AccessToken accessToken) {
         this.service = service;
         this.accessToken = accessToken;
