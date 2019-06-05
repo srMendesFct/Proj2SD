@@ -7,8 +7,8 @@ public class UploadArgs {
 
     public UploadArgs(String path) {
         this.path = path;
-        this.mode = "add";
-        this.autorename = false;
+        this.mode = "update";
+        this.autorename = true;
         this.mute = false;
         this.strict_conflict = false;
     }

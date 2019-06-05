@@ -67,7 +67,14 @@ public class DropboxMedia implements Media {
         OAuthRequest upload = new OAuthRequest(Verb.POST, CREATE_FILE_V2_URL);
         upload.addHeader("Content-Type", OCTETSTREAM_CONTENT_TYPE);
         upload.addHeader(DROPBOX_API_ARG, JSON.encode(new UploadArgs("/media/" + id)));
-        service.signRequest(accessToken, upload);
+        upload.setPayload(bytes);
+
+
+        try {
+            service.signRequest(accessToken, upload);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
         Response r = service.execute(upload);
 
 
