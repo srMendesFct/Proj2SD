@@ -16,7 +16,7 @@ import javax.net.ssl.SSLContext;
 
 
 public class MediaRestServer {
-    public static final int PORT = 8080;
+    public static final int PORT = 12222;
     public static final String SERVICE = "Microgram-MediaStorage";
     public static String SERVER_BASE_URI = "https://%s:%s/rest";
 

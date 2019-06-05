@@ -1,6 +1,7 @@
 package microgram.impl.mongo;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import microgram.api.Profile;
 import microgram.api.java.Profiles;
 import microgram.api.java.Result;
@@ -26,8 +27,8 @@ public class MongoProfiles implements Profiles {
     public MongoProfiles() {
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "OFF");
 
-        // MongoClientURI uri = new MongoClientURI("mongodb://mongo1,mongo2,mongo3/?w=majority&readConcernLevel=majority&readPreference=secondary");
-        MongoClient mongo = new MongoClient("127.0.0.1");
+        MongoClientURI uri = new MongoClientURI("mongodb://mongo1,mongo2,mongo3/?w=majority&readConcernLevel=majority&readPreference=secondary");
+        MongoClient mongo = new MongoClient(uri);
         final Morphia morphia = new Morphia();
         morphia.mapPackage("microgram.impl.mongo.ProfilesPojos");
         profiledatastore = morphia.createDatastore(mongo, "PojoProfile");
