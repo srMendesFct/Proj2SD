@@ -19,9 +19,14 @@ public class MediaRestServer {
     public static final String SERVICE = "Microgram-MediaStorage";
     public static String SERVER_BASE_URI = "https://%s:%s/rest";
 
+    static {
+    	System.setProperty("java.net.preferIPv4Stack", "true");
+    }
+    
+	private static Logger Log = Logger.getLogger(MediaRestServer.class.getName());
 
     public static void main(String[] args) throws Exception {
-        System.setProperty("java.net.preferIPv4Stack", "true");
+        
 
         Log.setLevel(Level.FINER);
 
@@ -30,7 +35,7 @@ public class MediaRestServer {
 
         String serviceURI = serverURI + RestMedia.PATH;
 
-        Discovery.announce(SERVICE, serviceURI);
+        
         ResourceConfig config = new ResourceConfig();
 
         config.register(new RestMediaResources(serviceURI));
@@ -39,7 +44,9 @@ public class MediaRestServer {
 //		config.register(new PrematchingRequestFilter());
 
         JdkHttpServerFactory.createHttpServer(URI.create(serverURI.replace(ip, "0.0.0.0")), config, SSLContext.getDefault());
-
+        
+        Discovery.announce(SERVICE, serviceURI);
+        
         Log.fine(String.format("%s Rest Server ready @ %s\n", SERVICE, serverURI));
 
     }
