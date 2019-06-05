@@ -1,5 +1,6 @@
 package microgram.impl.rest.media;
 import microgram.api.rest.RestMedia;
+import microgram.impl.dropbox.DropboxMedia;
 import microgram.impl.rest.RestResource;
 
 import java.io.IOException;
