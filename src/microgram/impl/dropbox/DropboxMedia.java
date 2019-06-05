@@ -15,6 +15,7 @@ import utils.JSON;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
+import java.io.InputStream;
 
 public class DropboxMedia implements Media {
     private static final String apiKey = "d9oz4yov19fb7id";
@@ -39,8 +40,8 @@ public class DropboxMedia implements Media {
     }
 
     public DropboxMedia(OAuth20Service service, OAuth2AccessToken accessToken) {
-        service = new ServiceBuilder(apiKey).apiSecret(apiSecret).build(DropboxApi20.INSTANCE);
-        accessToken = new OAuth2AccessToken(accessTokenStr);
+        this.service = service;
+        this.accessToken = accessToken;
     }
 
 
@@ -63,44 +64,56 @@ public class DropboxMedia implements Media {
     @Override
     public Result<String> upload(byte[] bytes) throws InterruptedException, ExecutionException, IOException {
 
-        String id = Hash.digest(bytes).toString();
+        //OAuth20Service service = new ServiceBuilder(apiKey).apiSecret(apiSecret).build(DropboxApi20.INSTANCE);
+        //OAuth2AccessToken accessToken = new OAuth2AccessToken(accessTokenStr);
+
+
+       	String id = Hash.digest(bytes).toString();
         OAuthRequest upload = new OAuthRequest(Verb.POST, CREATE_FILE_V2_URL);
-        upload.addHeader("Content-Type", OCTETSTREAM_CONTENT_TYPE);
+        upload.addHeader("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
         upload.addHeader(DROPBOX_API_ARG, JSON.encode(new UploadArgs("/media/" + id)));
         upload.setPayload(bytes);
 
 
-        try {
-            service.signRequest(accessToken, upload);
-        } catch (Exception e){
-            e.printStackTrace();
-        }
+        service.signRequest(accessToken, upload);
+
+
         Response r = service.execute(upload);
 
 
-        if (r.getCode() == 404) {
+        if (r.getCode() == 409) {
             return Result.error(Result.ErrorCode.NOT_FOUND);
         } else if (r.getCode() == 200) {
             return Result.ok(id);
         } else {
+            System.err.println(r.getCode());
             return Result.error(Result.ErrorCode.NOT_IMPLEMENTED);
         }
     }
 
     @Override
     public Result<byte[]> download(String id) throws InterruptedException, ExecutionException, IOException {
-        OAuthRequest getFile = new OAuthRequest(Verb.GET, DOWNLOAD_FILE_V2_URL);
-        getFile.addHeader("Content-Type", JSON_CONTENT_TYPE);
-        getFile.addHeader(DROPBOX_API_ARG, JSON.encode(new DownloadArgs("/media/" + id)));
 
-        service.signRequest(new OAuth2AccessToken(accessTokenStr), getFile);
+        OAuthRequest getFile = new OAuthRequest(Verb.POST, DOWNLOAD_FILE_V2_URL);
+        getFile.addHeader(DROPBOX_API_ARG, JSON.encode(new DownloadArgs("/media/" + id)));
+        getFile.addHeader("Content-Type", MediaType.APPLICATION_OCTET_STREAM);
+        
+
+        service.signRequest(accessToken, getFile);
         Response r = service.execute(getFile);
 
-        if (r.getCode() == 404) {
+        if (r.getCode() == 409) {
             return Result.error(Result.ErrorCode.NOT_FOUND);
         } else if (r.getCode() == 200) {
-            return Result.ok(JSON.decode(r.getBody()));
+
+	InputStream in = r.getStream();
+	byte[] res = new byte[in.available()];
+	in.read(res);
+            
+	System.err.println(res);
+	return Result.ok(res);
         } else {
+	System.err.println(r.getCode());
             return Result.error(Result.ErrorCode.INTERNAL_ERROR);
         }
 
@@ -108,18 +121,20 @@ public class DropboxMedia implements Media {
 
     @Override
     public Result<Void> delete(String id) throws InterruptedException, ExecutionException, IOException {
-        OAuthRequest delFile = new OAuthRequest(Verb.DELETE, DELETE_FILE_V2_URL);
-        delFile.addHeader("Content-Type", JSON_CONTENT_TYPE);
-        delFile.addHeader(DROPBOX_API_ARG, JSON.encode(new DownloadArgs("/media/" + id)));
 
-        service.signRequest(new OAuth2AccessToken(accessTokenStr), delFile);
+        OAuthRequest delFile = new OAuthRequest(Verb.POST, DELETE_FILE_V2_URL);
+        delFile.addHeader("Content-Type", MediaType.APPLICATION_JSON);
+        delFile.setPayload(JSON.encode(new DownloadArgs("/media/" + id)));
+
+        service.signRequest(accessToken, delFile);
         Response r = service.execute(delFile);
 
-        if (r.getCode() == 404) {
+        if (r.getCode() == 409) {
             return Result.error(Result.ErrorCode.NOT_FOUND);
         } else if (r.getCode() == 200) {
             return Result.ok();
         } else {
+	System.err.println(r.getCode());
             return Result.error(Result.ErrorCode.INTERNAL_ERROR);
         }
     }

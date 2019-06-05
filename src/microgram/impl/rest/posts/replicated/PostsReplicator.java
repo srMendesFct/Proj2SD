@@ -1,15 +1,12 @@
 package microgram.impl.rest.posts.replicated;
 import microgram.api.Post;
-import microgram.api.Profile;
 import microgram.api.java.Posts;
 import microgram.api.java.Result;
-import microgram.impl.mongo.LikesPost;
 import microgram.impl.mongo.MongoPosts;
 import microgram.impl.rest.replication.MicrogramOperation;
 import microgram.impl.rest.replication.MicrogramOperationExecutor;
 import microgram.impl.rest.replication.OrderedExecutor;
 
-import javax.ws.rs.POST;
 import java.util.List;
 
 import static microgram.api.java.Result.ErrorCode.NOT_IMPLEMENTED;

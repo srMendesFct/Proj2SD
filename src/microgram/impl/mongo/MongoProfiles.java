@@ -1,42 +1,37 @@
 package microgram.impl.mongo;
 
 import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
 import microgram.api.Profile;
 import microgram.api.java.Profiles;
 import microgram.api.java.Result;
+import microgram.impl.mongo.ProfilesPojos.PojoProfRelations;
+import microgram.impl.mongo.ProfilesPojos.PojoProfile;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.UpdateOperations;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.LinkedList;
 import java.util.List;
-
+import static microgram.impl.mongo.MongoPosts.pMongo;
 import static microgram.api.java.Result.ErrorCode.NOT_FOUND;
 import static microgram.api.java.Result.error;
 import static microgram.api.java.Result.ok;
-import static microgram.impl.mongo.MongoPosts.pMongo;
 
 public class MongoProfiles implements Profiles {
-    final Datastore profiledatastore;
-    final Datastore followers;
-    final Datastore following;
+    private final Datastore profiledatastore;
     static MongoProfiles MongoP;
 
     public MongoProfiles() {
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "OFF");
 
-       // MongoClientURI uri = new MongoClientURI("mongodb://mongo1,mongo2,mongo3/?w=majority&readConcernLevel=majority&readPreference=secondary");
+        // MongoClientURI uri = new MongoClientURI("mongodb://mongo1,mongo2,mongo3/?w=majority&readConcernLevel=majority&readPreference=secondary");
         MongoClient mongo = new MongoClient("127.0.0.1");
         final Morphia morphia = new Morphia();
-        morphia.mapPackage("Profile storage");
-        profiledatastore = morphia.createDatastore(mongo, "profile");
+        morphia.mapPackage("microgram.impl.mongo.ProfilesPojos");
+        profiledatastore = morphia.createDatastore(mongo, "PojoProfile");
         profiledatastore.ensureIndexes();
-        followers = morphia.createDatastore(mongo, "followers");
-        followers.ensureIndexes();
-        following = morphia.createDatastore(mongo, "followings");
-        following.ensureIndexes();
         MongoP = this;
     }
 
@@ -44,12 +39,11 @@ public class MongoProfiles implements Profiles {
     @Override
     synchronized public Result<Profile> getProfile(String userId) {
         try {
-            List<Profile> profiles = profiledatastore.createQuery(Profile.class).field("userId").equal(userId).asList();
-            List<Followers> f = followers.createQuery(Followers.class).field("userId").equal(userId).asList();
-            List<Following> fol = following.createQuery(Following.class).field("userId").equal(userId).asList();
-            Profile res = profiles.get(0);
-            res.setFollowers(f.size());
-            res.setFollowing(fol.size());
+            List<PojoProfile> profiles = profiledatastore.createQuery(PojoProfile.class).field("userId").equal(userId).asList();
+            Profile res = profiles.get(0).getProf();
+            PojoProfRelations pj = profiles.get(0).getRel();
+            res.setFollowers(pj.getFollowers().size());
+            res.setFollowing(pj.getFollowing().size());
             return ok(res);
         } catch (Exception e) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -58,88 +52,77 @@ public class MongoProfiles implements Profiles {
 
     @Override
     synchronized public Result<Void> createProfile(Profile profile) {
-        List<Profile> profiles = profiledatastore.createQuery(Profile.class).field("userId").equal(profile.getUserId()).asList();
-        List<Following> newFollowing = following.createQuery(Following.class).field("userId").equal(profile.getUserId()).asList();
-        List<Followers> newFollowers = followers.createQuery(Followers.class).field("userId").equal(profile.getUserId()).asList();
+        List<PojoProfile> profiles = profiledatastore.createQuery(PojoProfile.class).field("userId").equal(profile.getUserId()).asList();
 
-        return ok();
-       /*
         if (!profiles.isEmpty()) {
             throw new WebApplicationException(Response.Status.CONFLICT);
         } else {
+            PojoProfile pp = new PojoProfile(profile);
+            PojoProfRelations pj = new PojoProfRelations(new LinkedList<>(), new LinkedList<>());
+            pp.setpojo(pj);
             profiledatastore.save(profile);
-            following.save(newFollowing);
-            followers.save(newFollowers);
             return ok();
         }
-        
-        */
     }
 
     @Override
     synchronized public Result<Void> deleteProfile(String userId) {
-        List<Profile> profiles = profiledatastore.createQuery(Profile.class).field("userId").equal(userId).asList();
 
-        if (profiles.isEmpty()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        } else {
+        try {
+            List<PojoProfile> profiles = profiledatastore.createQuery(PojoProfile.class).field("userId").equal(userId).asList();
 
-            List<Following> delFollowing = following.createQuery(Following.class).field("userId").equal(userId).asList();
+            PojoProfile p = profiles.get(0);
 
-            List<String> fol = delFollowing.get(0).getFollwing();
+            p.getRel().getFollowers().forEach(String -> {
+                if(p.getRel().getFollowing().contains(userId)){
+                    p.getRel().getFollowing().remove(userId);
+                }
+            });
 
-            for (String s : fol) {
-                List<Followers> forFollowers = followers.createQuery(Followers.class).field("userId").equal(s).asList();
-                List<String> listFol = forFollowers.get(0).getFollowers();
-                if (!listFol.isEmpty())
-                    listFol.remove(userId);
+            p.getRel().getFollowing().forEach(String -> {
+                if(p.getRel().getFollowers().contains(userId)){
+                    p.getRel().getFollowers().remove(userId);
+                }
+            });
 
-                UpdateOperations<Followers> updateOperations = followers.createUpdateOperations(Followers.class).set("l", listFol);
-
-                followers.update(followers.createQuery(Followers.class).field("userId").equal(s), updateOperations);
-            }
-
-            List<Followers> delFollowers = followers.createQuery(Followers.class).field("userId").equal(userId).asList();
-
-            fol = delFollowers.get(0).getFollowers();
-
-            for (String s : fol) {
-                List<Following> forFollowing = following.createQuery(Following.class).field("userId").equal(s).asList();
-                List<String> listFol = forFollowing.get(0).getFollwing();
-                if (!listFol.isEmpty())
-                    listFol.remove(userId);
-                UpdateOperations<Followers> updateOperations = followers.createUpdateOperations(Followers.class).set("l", listFol);
-
-                followers.update(followers.createQuery(Followers.class).field("userId").equal(s), updateOperations);
-            }
-
-            profiledatastore.delete(profiles);
             pMongo.deleteAllUserPosts(userId);
-            return ok();
+
+        }catch (Exception e){
+            return error(NOT_FOUND);
         }
+
+        return ok();
     }
 
     @Override
     synchronized public Result<List<Profile>> search(String prefix) {
 
-        List<Profile> sProfiles = profiledatastore.createQuery(Profile.class).field("userId").startsWith(prefix).asList();
+        List<PojoProfile> sProfiles = profiledatastore.createQuery(PojoProfile.class).field("userId").startsWith(prefix).asList();
+        if (!sProfiles.isEmpty()) {
+            List<Profile> l = new LinkedList<>();
+            sProfiles.forEach(pojoProfile -> {
+                l.add(pojoProfile.getProf());
+            });
+            return ok(l);
+        } else {
+            return error(NOT_FOUND);
+        }
 
-        return ok(sProfiles);
     }
 
     @Override
     synchronized public Result<Void> follow(String userId1, String userId2, boolean isFollowing) {
 
-        List<Following> folFollowing = following.createQuery(Following.class).field("userId").equal(userId1).asList();
+        List<PojoProfile> sProfilesofid1 = profiledatastore.createQuery(PojoProfile.class).field("userId").equal(userId1).asList();
 
-        List<Followers> folFollowers = followers.createQuery(Followers.class).field("userId").equal(userId2).asList();
+        List<PojoProfile> sProfilesofid2 = profiledatastore.createQuery(PojoProfile.class).field("userId").equal(userId2).asList();
 
-        if (folFollowers.isEmpty() || folFollowing.isEmpty())
+        if (sProfilesofid1.isEmpty() || sProfilesofid2.isEmpty())
             return error(NOT_FOUND);
 
-        List<String> lFollowing = folFollowing.get(0).getFollwing();
+        List<String> lFollowing = sProfilesofid1.get(0).getRel().getFollowing();
 
-        List<String> lFollowers = folFollowers.get(0).getFollowers();
+        List<String> lFollowers = sProfilesofid2.get(0).getRel().getFollowers();
 
         if (isFollowing) {
             lFollowing.add(userId2);
@@ -149,24 +132,31 @@ public class MongoProfiles implements Profiles {
             lFollowers.remove(userId1);
         }
 
-        UpdateOperations<Followers> updateOperationsFollowers = followers.createUpdateOperations(Followers.class).set("l", lFollowers);
 
-        followers.update(followers.createQuery(Followers.class).field("userId").equal(userId2), updateOperationsFollowers);
+        sProfilesofid1.get(0).setRelFollowing(lFollowing);
+        sProfilesofid2.get(0).setRelFollowe(lFollowers);
 
-        UpdateOperations<Following> updateOperationsFollowing = following.createUpdateOperations(Following.class).set("l", lFollowing);
+        UpdateOperations<PojoProfile> updateOperationsFollowings = profiledatastore.createUpdateOperations(PojoProfile.class).set(userId1, sProfilesofid1);
+        UpdateOperations<PojoProfile> updateOperationsFollowers = profiledatastore.createUpdateOperations(PojoProfile.class).set(userId2, sProfilesofid2);
 
-        following.update(following.createQuery(Following.class).field("userId").equal(userId1), updateOperationsFollowing);
+        profiledatastore.save(updateOperationsFollowings);
+        profiledatastore.save(updateOperationsFollowers);
 
         return ok();
+
     }
 
     @Override
     synchronized public Result<Boolean> isFollowing(String userId1, String userId2) {
         try {
-            List<Following> fol = following.createQuery(Following.class).field("userId").equal(userId1).asList();
-            Following f = fol.get(0);
-            if (f != null)
-                return ok(f.getFollwing().contains(userId2));
+
+
+            List<PojoProfile> fol = profiledatastore.createQuery(PojoProfile.class).field("userId").equal(userId1).asList();
+
+            List<String> l = fol.get(0).getRel().getFollowing();
+
+            if (!fol.isEmpty() && !l.isEmpty())
+                return ok(l.contains(userId2));
             else
                 return error(NOT_FOUND);
         } catch (Exception e) {
@@ -175,11 +165,24 @@ public class MongoProfiles implements Profiles {
     }
 
     synchronized public List<String> following(String userId) {
-        List<Following> f = following.createQuery(Following.class).field("userId").equal(userId).asList();
+        List<PojoProfile> f = profiledatastore.createQuery(PojoProfile.class).field("userId").equal(userId).asList();
         if (f.isEmpty())
             return null;
-        else
-            return f.get(0).getFollwing();
+        else {
+            return f.get(0).getRel().getFollowing();
+        }
+
+    }
+
+    synchronized public void removeUserPost(String userId, String postId){
+        List<PojoProfile> f = profiledatastore.createQuery(PojoProfile.class).field("userId").equal(userId).asList();
+        List<String>l =  f.get(0).getRel().getUserPostss();
+        if(l.contains(postId)) {
+            l.remove(postId);
+            UpdateOperations<PojoProfile> updateOperationsFollowings = profiledatastore.createUpdateOperations(PojoProfile.class).set(userId, l);
+            profiledatastore.save(updateOperationsFollowings);
+
+        }
     }
 
 }

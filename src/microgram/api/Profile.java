@@ -13,9 +13,9 @@ import utils.JSON;
  * 
  * @author smd
  *
- */@Entity("profile")
+ */
 public class Profile {
-	@Id
+
 	String userId;
 	String fullName;
 	String photoUrl;
