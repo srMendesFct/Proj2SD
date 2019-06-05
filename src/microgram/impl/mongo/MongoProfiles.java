@@ -27,8 +27,8 @@ public class MongoProfiles implements Profiles {
     public MongoProfiles() {
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "OFF");
 
-        MongoClientURI uri = new MongoClientURI("mongodb://mongo1,mongo2,mongo3/?w=majority&readConcernLevel=majority&readPreference=secondary");
-        MongoClient mongo = new MongoClient(uri);
+       // MongoClientURI uri = new MongoClientURI("mongodb://mongo1,mongo2,mongo3/?w=majority&readConcernLevel=majority&readPreference=secondary");
+        MongoClient mongo = new MongoClient("127.0.0.1");
         final Morphia morphia = new Morphia();
         morphia.mapPackage("Profile storage");
         profiledatastore = morphia.createDatastore(mongo, "profile");
