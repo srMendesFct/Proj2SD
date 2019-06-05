@@ -23,12 +23,12 @@ public class MicrogramRestServer {
 	private static final String POSTS_SERVICE = "Microgram-Posts";
 	private static final String PROFILES_SERVICE = "Microgram-Profiles";
 	
-	public static String SERVER_BASE_URI = "http://%s:%s/rest";
+	public static String SERVER_BASE_URI = "https://%s:%s/rest";
 
 	public static void main(String[] args) throws Exception {
 		Args.use(args);
 
-		System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "OFF");
+
 		System.setProperty("java.net.preferIPv4Stack", "true");
 		Log.setLevel(Level.INFO);
 
@@ -45,8 +45,8 @@ public class MicrogramRestServer {
 		
 //		config.register(new PrematchingRequestFilter());
 //		config.register(new GenericExceptionMapper());
-		
-		JdkHttpServerFactory.createHttpServer(URI.create(serverURI.replace(ip, "0.0.0.0")), config);
+
+		JdkHttpServerFactory.createHttpServer(URI.create(serverURI.replace(ip, "0.0.0.0")), config,  SSLContext.getDefault());
 
 		Log.fine(String.format("Posts+Profiles Combined Rest Server ready @ %s\n", serverURI));
 	}
