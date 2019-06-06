@@ -5,13 +5,14 @@ import java.util.List;
 import microgram.api.Post;
 import microgram.api.java.Posts;
 import microgram.api.rest.RestPosts;
+import microgram.impl.mongo.MongoPosts;
 import microgram.impl.rest.RestResource;
 
 public class RestPostsResources extends RestResource implements RestPosts {
 
-	protected final Posts impl;
+	protected final MongoPosts impl;
 
-	protected RestPostsResources(Posts impl) {
+	public RestPostsResources(MongoPosts impl) {
 		this.impl = impl;		
 	}
 

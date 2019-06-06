@@ -12,6 +12,10 @@ import java.util.logging.Level;
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
+import microgram.impl.mongo.MongoPosts;
+import microgram.impl.mongo.MongoProfiles;
+import microgram.impl.rest.posts.RestPostsResources;
+import microgram.impl.rest.profiles.RestProfilesResources;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
@@ -67,8 +71,8 @@ public class MicrogramRestServer {
 
         ResourceConfig config = new ResourceConfig();
 
-        config.register(new ReplicatedPostsResources());
-        config.register(new ReplicatedProfilesResources());
+        config.register(new RestPostsResources(new MongoPosts(dbName)));
+        config.register(new RestProfilesResources(new MongoProfiles(dbName)));
 
 //		config.register(new PrematchingRequestFilter());
 //		config.register(new GenericExceptionMapper());

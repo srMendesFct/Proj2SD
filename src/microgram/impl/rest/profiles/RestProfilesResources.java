@@ -5,13 +5,14 @@ import java.util.List;
 import microgram.api.Profile;
 import microgram.api.java.Profiles;
 import microgram.api.rest.RestProfiles;
+import microgram.impl.mongo.MongoProfiles;
 import microgram.impl.rest.RestResource;
 
 public class RestProfilesResources extends RestResource implements RestProfiles {
 
-	protected final Profiles impl;
+	protected final MongoProfiles impl;
 
-	protected RestProfilesResources(Profiles impl) {
+	public RestProfilesResources(MongoProfiles impl) {
 		this.impl = impl;
 	}
 
