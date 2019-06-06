@@ -62,12 +62,16 @@ public class MongoPosts implements Posts {
 
     @Override
     synchronized public Result<String> createPost(Post post) {
-
         try {
             Post currentPost = dbCol.find(Filters.eq("postId", post.getPostId())).first();
             currentPost.setLikes(0);
             dbCol.insertOne(post);
-            return ok(post.getOwnerId());
+            Profile p = getProfilesBase().find(Filters.eq("userId", post.getOwnerId())).first();
+            p.setPosts(p.getPosts() +1);
+            getProfilesBase().deleteOne(Filters.eq("userId", p.getUserId()));
+            getProfilesBase().insertOne(p);
+
+            return ok(post.getPostId());
         } catch (MongoException e) {
             return error(CONFLICT);
         }
