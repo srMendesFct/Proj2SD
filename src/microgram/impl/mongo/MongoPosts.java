@@ -66,10 +66,6 @@ public class MongoPosts implements Posts {
             dbCol.insertOne(post);
             Post currentPost = dbCol.find(Filters.eq("postId", post.getPostId())).first();
             currentPost.setLikes(0);
-            Profile p = getProfilesBase().find(Filters.eq("owenerId", post.getOwnerId())).first();
-            p.setPosts(p.getPosts() +1);
-            getProfilesBase().deleteOne(Filters.eq("userId", p.getUserId()));
-            getProfilesBase().insertOne(p);
             return ok(post.getOwnerId());
         } catch (MongoException e) {
             return error(CONFLICT);
