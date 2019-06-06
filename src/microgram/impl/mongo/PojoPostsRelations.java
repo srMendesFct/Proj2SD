@@ -7,28 +7,20 @@ import java.util.List;
 
 @Embedded
 public class PojoPostsRelations {
+    public final String postId;
+    public final String likeduserId;
 
-    private List<String> likes;
-    private List<String> userposts;
 
-    public PojoPostsRelations(List<String> l, List<String> l2) {
-        likes = l;
-        userposts = l2;
+        public PojoPostsRelations(String postId, String userLiked) {
+        this.postId = postId;
+        likeduserId = userLiked;
     }
 
-    public List<String> getlikes() {
-        return likes;
+    public String getPostId() {
+        return postId;
     }
 
-    public List<String> getUserposts() {
-        return userposts;
-    }
-
-    public void setpostsidOfUser(List<String> newl) {
-        userposts = newl;
-    }
-
-    public void setLikes(List<String> newl) {
-        likes = newl;
+    public String getUserId() {
+        return likeduserId;
     }
 }

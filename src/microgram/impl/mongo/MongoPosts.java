@@ -1,82 +1,83 @@
 package microgram.impl.mongo;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import discovery.Discovery;
+import java.util.*;
+
+import com.mongodb.MongoException;
 import microgram.api.Post;
+import org.apache.zookeeper.server.quorum.Follower;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
+import org.bson.conversions.Bson;
+
+import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
+import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
+
+import static microgram.api.java.Result.error;
+import static microgram.api.java.Result.ok;
+import static microgram.api.java.Result.ErrorCode.CONFLICT;
+import static microgram.api.java.Result.ErrorCode.NOT_FOUND;
+
+import com.mongodb.MongoClient;
+import com.mongodb.ServerAddress;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.Indexes;
+import com.mongodb.client.result.DeleteResult;
+
 import microgram.api.Profile;
 import microgram.api.java.Posts;
 import microgram.api.java.Result;
-import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.Morphia;
-import org.mongodb.morphia.query.UpdateOperations;
 
-import static microgram.impl.mongo.MongoProfiles.MongoP;
-
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-
-import static microgram.api.java.Result.ErrorCode.CONFLICT;
-import static microgram.api.java.Result.ErrorCode.NOT_FOUND;
-import static microgram.api.java.Result.error;
-import static microgram.api.java.Result.ok;
 
 public class MongoPosts implements Posts {
-    final Datastore postsdatastore;
-    static MongoPosts pMongo;
+    private static MongoDatabase dbName;
+     static MongoCollection<Post> dbCol;
+     static MongoCollection<PojoPostsRelations> likescol;
+
 
     public MongoPosts() {
-        // MongoClientURI uri = new MongoClientURI("mongodb://mongo1,mongo2,mongo3/?w=majority&readConcernLevel=majority&readPreference=secondary");
-        MongoClient mongo = new MongoClient("127.0.0.1");
-        final Morphia morphia = new Morphia();
-        morphia.mapPackage("Posts storage");
-        postsdatastore = morphia.createDatastore(mongo, "PojoPost");
-        postsdatastore.ensureIndexes();
-        pMongo = this;
+        dbCol = dbName.getCollection("posts", Post.class);
+        likescol = dbName.getCollection("likes", PojoPostsRelations.class);
 
+        dbCol.createIndex(Indexes.ascending("postId"), new IndexOptions().unique(true));
+        likescol.createIndex(Indexes.ascending("postId", "likeduserId"), new IndexOptions().unique(true));
     }
 
 
     @Override
     synchronized public Result<Post> getPost(String postId) {
-        try {
-            List<PojoPost> poslist = postsdatastore.createQuery(PojoPost.class).field("postId").equal(postId).asList();
-            Post res = poslist.get(0).getPost();
-            res.setLikes(poslist.get(0).getRel().getlikes().size());
-            return ok(res);
-        } catch (Exception e) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        Post p = dbCol.find(Filters.eq("postId", postId)).first();
+        if (p == null) return error(NOT_FOUND);
+        else {
+            long id1 = likescol.countDocuments(Filters.eq("postId", postId));
+            p.setLikes((int) id1);
+            return ok(p);
         }
     }
 
     @Override
     synchronized public Result<String> createPost(Post post) {
-        List<PojoPost> posts = postsdatastore.createQuery(PojoPost.class).field("postId").equal(post.getPostId()).asList();
-
-        if (!posts.isEmpty()) {
-            throw new WebApplicationException(Response.Status.CONFLICT);
-        } else {
-            PojoPost p = new PojoPost(post);
-            postsdatastore.save(posts);
-            return ok(post.getPostId());
+        try {
+            dbCol.insertOne(post);
+            Post currentPost = dbCol.find(Filters.eq("postId", post.getPostId())).first();
+            currentPost.setLikes(0);
+            return ok(post.getOwnerId());
+        } catch (MongoException e) {
+            return error(CONFLICT);
         }
     }
 
     @Override
     synchronized public Result<Void> deletePost(String postId) {
-
-        List<PojoPost> posts = postsdatastore.createQuery(PojoPost.class).field("postId").equal(postId).asList();
-        if (posts.isEmpty()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        DeleteResult r = dbCol.deleteOne(Filters.eq("postId", postId));
+        if (r.getDeletedCount() == 0) {
+            return error(NOT_FOUND);
         } else {
-            MongoP.removeUserPost(posts.get(0).getPost().getOwnerId(), postId);
-            postsdatastore.delete(postId);
+            dbCol.deleteMany(Filters.eq("postId", postId));
             return ok();
         }
     }
@@ -84,87 +85,76 @@ public class MongoPosts implements Posts {
     @Override
     synchronized public Result<Void> like(String postId, String userId, boolean isLiked) {
 
-        List<PojoPost> lLikes = postsdatastore.createQuery(PojoPost.class).field("postId").equal(postId).asList();
+        FindIterable<Post> pf = dbCol.find(Filters.eq("postId", postId));
 
-        if (lLikes.isEmpty())
+        if (!(pf.iterator().hasNext())) {
             return error(NOT_FOUND);
-
-        List<String> lPost = lLikes.get(0).getRel().getlikes();
-
-        if (isLiked) {
-            if (!lPost.contains(userId))
-                return error(CONFLICT);
-            else {
-                lPost.remove(userId);
-            }
         } else {
-            if (lPost.contains(userId))
-                return error(NOT_FOUND);
-            else {
-                lPost.add(userId);
+            PojoPostsRelations rel = likescol.find(Filters.and(Filters.eq("postId", userId), Filters.eq("likeduserId", userId))).first();
+            if (isLiked) {
+
+                PojoPostsRelations pfole = new PojoPostsRelations(postId, userId);
+                likescol.insertOne(pfole);
+
+            } else {
+                likescol.deleteOne(Filters.and(Filters.eq("postId", postId), Filters.eq("likeduserId", userId)));
             }
+            return ok();
         }
-
-        lLikes.get(0).getRel().setLikes(lPost);
-        UpdateOperations<PojoPost> updateOperations = postsdatastore.createUpdateOperations(PojoPost.class).set(postId, lLikes);
-        postsdatastore.save(updateOperations);
-
-        return ok();
     }
 
     @Override
     synchronized public Result<Boolean> isLiked(String postId, String userId) {
-        try {
-            List<PojoPost> lp = postsdatastore.createQuery(PojoPost.class).field("postId").equal(postId).asList();
-            if (!lp.isEmpty())
-                return ok(lp.get(0).getRel().getlikes().contains(userId));
-            else
-                return error(NOT_FOUND);
-        } catch (Exception e) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        FindIterable<Post> p = dbCol.find(Filters.eq("postId", postId));
+        if (!p.iterator().hasNext()) return error(NOT_FOUND);
+        else {
+            PojoPostsRelations pf = likescol.find(Filters.and(Filters.eq("postId", postId), Filters.eq("likeduserId", userId))).first();
+            if (pf != null) return ok(true);
+            else return ok(false);
         }
     }
 
     @Override
     synchronized public Result<List<String>> getPosts(String userId) {
-
-        List<PojoPost> uposts = postsdatastore.createQuery(PojoPost.class).field("ownerId").equal(userId).asList();
-        if (uposts.isEmpty()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        } else {
-            List<String> res = uposts.get(0).getRel().getUserposts();
-            return ok(res);
+        List<String> l = new LinkedList<>();
+        Iterator<Post> fi = dbCol.find().iterator();
+        while (fi.hasNext()) {
+            Post p = fi.next();
+            if (p.getOwnerId().equals(userId)) {
+                l.add(p.getPostId());
+            }
         }
+
+
+        if (l.isEmpty()) return error(NOT_FOUND);
+        else
+            return ok(l);
     }
 
     @Override
     synchronized public Result<List<String>> getFeed(String userId) {
-        List<String> following = MongoP.following(userId);
-        try {
-            if (following.isEmpty()) {
-                throw new WebApplicationException(Response.Status.NOT_FOUND);
-            } else {
-                List<String> feed = new ArrayList<>();
-                for (String followii : following) {
-                    List<PojoPost> up = postsdatastore.createQuery(PojoPost.class).field("userId").equal(userId).asList();
-                    if (!up.isEmpty()) {
-                        for(PojoPost pp: up){
-                            feed.add(pp.getPostId());
-                        }
-
-                    }
-                }
-                return ok(feed);
-            }
-
-        } catch (Exception e) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        List<String> l = new LinkedList<String >();
+        Iterator<PojoFollowing> userFollowing = this.getuserFollowing(userId);
+        while(userFollowing.hasNext()){
+            PojoFollowing pf = userFollowing.next();
+            Iterator<Post> postByuser = dbCol.find(Filters.eq("ownerId", pf.getFollwing())).iterator();
+            while(postByuser.hasNext())l.add(postByuser.next().getPostId());
         }
 
+        if(l.isEmpty()) return error(NOT_FOUND);
+        else{
+            return ok(l);
+        }
     }
 
-    synchronized void deleteAllUserPosts(String userId) {
-        List<PojoPost> posts = postsdatastore.createQuery(PojoPost.class).field("userId").equal(userId).asList();
-        postsdatastore.delete(posts);
+    private MongoCollection<Profile> getProfilesBase() {
+        return MongoProfiles.dbCol;
     }
+
+    private Iterator<PojoFollowing>getuserFollowing(String userId){
+        return MongoProfiles.followingCol.find(Filters.eq("userId", userId)).iterator();
+    }
+
+
+
 }

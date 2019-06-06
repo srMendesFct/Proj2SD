@@ -1,7 +1,5 @@
 package microgram.api;
 
-import org.mongodb.morphia.annotations.Entity;
-import org.mongodb.morphia.annotations.Id;
 import utils.JSON;
 
 /**

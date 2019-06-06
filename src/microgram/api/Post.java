@@ -1,103 +1,101 @@
 package microgram.api;
-
-import org.mongodb.morphia.annotations.Entity;
-import org.mongodb.morphia.annotations.Id;
 import utils.Hash;
 import utils.JSON;
 
 /**
  * Represents a Post.
- * 
+ * <p>
  * A post has an unique postId and a single ownerId profile; comprises of an image, taken at some location and stored at some mediaurl; it is timestamped.
  * A post also has a number of likes, which can increase or decrease over time. It is the only piece of information that is mutable.
- *  
- * @author smd
  *
+ * @author smd
  */
-@Entity("post")
+
 public class Post {
-	@Id
-	String postId;
 
-	String ownerId;
-	String mediaUrl;
-	String location;
-	long timestamp;
-	
-	int likes;
+    String postId;
 
-	public Post() {}
+    String ownerId;
+    String mediaUrl;
+    String location;
+    long timestamp;
 
-	public Post(String postId, String ownerId, String mediaUrl, String location, long timestamp) {
-		this.postId = postId;
-		this.ownerId = ownerId;
-		this.mediaUrl = mediaUrl;
-		this.location = location;
-		this.timestamp = timestamp;
-	}
-	
-	public String getMediaUrl() {
-		return mediaUrl;
-	}
-	public String getLocation() {
-		return location;
-	}
+    int likes;
 
-	public int getLikes() {
-		return likes;
-	}
-	
-	public String getPostId() {
-		if( postId == null ) 
-			postId = generatePostId();
-		return postId;
-	}
-	
-	public String getOwnerId() {
-		return ownerId;
-	}
+    public Post() {
+    }
 
-	public long getTimestamp() {
-		return timestamp;
-	}
+    public Post(String postId, String ownerId, String mediaUrl, String location, long timestamp) {
+        this.postId = postId;
+        this.ownerId = ownerId;
+        this.mediaUrl = mediaUrl;
+        this.location = location;
+        this.timestamp = timestamp;
+    }
 
-	public void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
-	}
-	
-	public void setPostId(String postId) {
-		this.postId = postId;
-	}
+    public String getMediaUrl() {
+        return mediaUrl;
+    }
 
-	public void setOwnerId(String ownerId) {
-		this.ownerId = ownerId;
-	}
+    public String getLocation() {
+        return location;
+    }
 
-	public void setMediaUrl(String mediaUrl) {
-		this.mediaUrl = mediaUrl;
-	}
+    public int getLikes() {
+        return likes;
+    }
 
-	public void setLocation(String location) {
-		this.location = location;
-	}
+    public String getPostId() {
+        if (postId == null)
+            postId = generatePostId();
+        return postId;
+    }
 
-	public void setLikes(int likes) {
-		this.likes = likes;
-	}
-	
-	@Override
-	public String toString() {
-		return JSON.encode( this );
-	}
-	
-	private String generatePostId() {
-		return getOwnerId() + DELIMITER + Hash.of( this.mediaUrl );		
-	}
-	
-	public static String ownerIdFromPostId( String postId ) {
-		int i = postId.indexOf(DELIMITER);
-		return i >= 0 ? postId.substring(0, i) : postId;
-	}
-	
-	private static final char DELIMITER = '-';
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public void setPostId(String postId) {
+        this.postId = postId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public void setMediaUrl(String mediaUrl) {
+        this.mediaUrl = mediaUrl;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public void setLikes(int likes) {
+        this.likes = likes;
+    }
+
+    @Override
+    public String toString() {
+        return JSON.encode(this);
+    }
+
+    private String generatePostId() {
+        return getOwnerId() + DELIMITER + Hash.of(this.mediaUrl);
+    }
+
+    public static String ownerIdFromPostId(String postId) {
+        int i = postId.indexOf(DELIMITER);
+        return i >= 0 ? postId.substring(0, i) : postId;
+    }
+
+    private static final char DELIMITER = '-';
 }
