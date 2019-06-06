@@ -7,6 +7,7 @@ import static microgram.impl.rest.replication.MicrogramOperation.Operation.*;
 import microgram.api.Profile;
 import microgram.api.java.Profiles;
 import microgram.api.java.Result;
+import microgram.impl.java.JavaProfiles;
 import microgram.impl.mongo.MongoProfiles;
 import microgram.impl.rest.replication.MicrogramOperation;
 import microgram.impl.rest.replication.MicrogramOperationExecutor;
@@ -18,10 +19,10 @@ public class ProfilesReplicator implements MicrogramOperationExecutor, Profiles 
 
 	private static final int FOLLOWER = 0, FOLLOWEE = 1;
 	
-	final MongoProfiles localReplicaDB;
+	final Profiles localReplicaDB;
 	final OrderedExecutor executor;
 	
-	ProfilesReplicator( MongoProfiles localDB, OrderedExecutor executor) {
+	ProfilesReplicator( Profiles localDB, OrderedExecutor executor) {
 		this.localReplicaDB = localDB;
 		this.executor = executor.init(this);
 	}

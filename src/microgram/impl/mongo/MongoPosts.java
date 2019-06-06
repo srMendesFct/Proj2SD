@@ -34,12 +34,11 @@ import microgram.api.java.Result;
 
 
 public class MongoPosts implements Posts {
-    private static MongoDatabase dbName;
      static MongoCollection<Post> dbCol;
      static MongoCollection<PojoPostsRelations> likescol;
 
 
-    public MongoPosts() {
+    public MongoPosts(MongoDatabase dbName) {
         dbCol = dbName.getCollection("posts", Post.class);
         likescol = dbName.getCollection("likes", PojoPostsRelations.class);
 

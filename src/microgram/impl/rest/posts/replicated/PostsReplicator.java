@@ -17,10 +17,10 @@ public class PostsReplicator implements MicrogramOperationExecutor, Posts {
 
 	private static final int PostID = 0, UserID = 1;
 	
-	final MongoPosts localReplicaDB;
+	final Posts localReplicaDB;
 	final OrderedExecutor executor;
 	
-	PostsReplicator( MongoPosts localDB, OrderedExecutor executor) {
+	PostsReplicator( Posts localDB, OrderedExecutor executor) {
 		this.localReplicaDB = localDB;
 		this.executor = executor.init(this);
 	}
