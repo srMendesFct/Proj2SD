@@ -36,9 +36,7 @@ public class MicrogramRestServer {
     static PojoCodecProvider codec;
     static CodecRegistry pojoCodecReg;
 
-    private static final String DB_NAME = "microgram";
-    private static final String DB_PROFILES = "profiles";
-    private static final String DB_BOTH = "both";
+    private static final String DB_NAME = "Database";
 
     public static void main(String[] args) throws Exception {
         Args.use(args);
