@@ -49,11 +49,13 @@ public class MongoPosts implements Posts {
 
     @Override
     synchronized public Result<Post> getPost(String postId) {
-        Post p = dbCol.find(Filters.eq("postId", postId)).first();
-        if (p == null) return error(NOT_FOUND);
+        long id = dbCol.countDocuments(Filters.eq("postId", postId));
+        if (id == 0) return error(NOT_FOUND);
         else {
             long id1 = likescol.countDocuments(Filters.eq("postId", postId));
-            p.setLikes((int) id1);
+            Post p = dbCol.find(Filters.eq("postId", postId)).first();
+
+            p.setLikes(Math.toIntExact(id1));
             return ok(p);
         }
     }
