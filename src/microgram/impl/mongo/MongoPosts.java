@@ -62,10 +62,11 @@ public class MongoPosts implements Posts {
 
     @Override
     synchronized public Result<String> createPost(Post post) {
+
         try {
-            dbCol.insertOne(post);
             Post currentPost = dbCol.find(Filters.eq("postId", post.getPostId())).first();
             currentPost.setLikes(0);
+            dbCol.insertOne(post);
             return ok(post.getOwnerId());
         } catch (MongoException e) {
             return error(CONFLICT);
