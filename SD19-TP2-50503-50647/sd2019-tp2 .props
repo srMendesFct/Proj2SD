@@ -16,8 +16,8 @@ uses-external-mongo-bool=true
 
 microgram-keystore=/home/sd19/SD19-TP2-50503-50647/microgram.ks
 microgram-keystore-password=changeit
-microgram-truststore=
-microgram-truststore-password=
+microgram-truststore=/home/sd19/SD19-TP2-50503-50647/microgram-truststore.ks
+microgram-truststore-password=changeit
 
 posts-keystore=
 posts-keystore-password=
@@ -29,8 +29,8 @@ profiles-keystore-password=
 profiles-truststore=
 profiles-truststore-password=
 
-mediastorage-truststore=
-mediastorage-truststore-password=
+mediastorage-truststore=/home/sd19/SD19-TP2-50503-50647/mediaclient-truststore.ks
+mediastorage-truststore-password=changeit
 mediastorage-keystore=/home/sd19/SD19-TP2-50503-50647/mediaserver.ks
 mediastorage-keystore-password=changeit
 
